@@ -1,0 +1,44 @@
+# Expected classifications for each test fixture.
+# Used by end-to-end tests to verify the rule engine produces correct tiers.
+
+feature_employee_evaluation:
+  tier: high
+  primary_trigger: "Annex III, 4(b)"
+  signals:
+    - employment_decisions
+  obligations_contain:
+    - "Risk management system required (Art. 9)"
+    - "Human oversight measures required (Art. 14)"
+
+feature_credit_scoring:
+  tier: high
+  primary_trigger: "Annex III, 5(a)"
+  signals:
+    - creditworthiness_assessment
+  obligations_contain:
+    - "Risk management system required (Art. 9)"
+    - "Conformity assessment required before placing on market (Art. 43)"
+
+feature_social_scoring:
+  tier: prohibited
+  primary_trigger: "Art. 5(1)(c)"
+  signals:
+    - social_scoring
+  obligations_contain:
+    - "System is prohibited under Art. 5"
+
+feature_genai_email_draft:
+  tier: limited
+  primary_trigger: "Art. 50(1)"
+  signals:
+    - generates_content
+    - interacts_with_humans
+  obligations_contain:
+    - "Transparency obligation"
+
+feature_internal_tool:
+  tier: minimal
+  primary_trigger: null
+  signals: []
+  obligations_contain:
+    - "No mandatory requirements"

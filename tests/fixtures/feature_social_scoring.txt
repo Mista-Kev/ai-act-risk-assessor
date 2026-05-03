@@ -1,0 +1,28 @@
+Feature: Citizen Trustworthiness Rating System
+
+A municipal government agency is proposing an AI system to evaluate and
+classify citizens based on their overall social behaviour patterns. The
+system will:
+
+- Aggregate data from multiple government databases: tax compliance records,
+  traffic violation history, public library usage, community volunteer
+  participation, social media activity analysis
+- Assign each citizen a "Community Trust Score" from 0-1000 based on
+  their aggregated social behaviour across these unrelated domains
+- Citizens with scores below 400 will face restrictions on access to
+  certain public services, including reduced priority for public housing
+  applications and restricted access to premium municipal facilities
+- Citizens with high scores receive preferential treatment including
+  expedited permit processing and fee waivers for municipal services
+- The scoring model weighs negative social behaviours from any domain
+  against positive contributions, creating a comprehensive behavioural
+  profile
+
+The system processes personal data of all residents (approximately 180,000
+people) including their interactions with government services, financial
+behaviour, and social activity. The AI system operates autonomously with
+no human review of individual scores. Deployment is across all municipal
+offices and public service access points.
+
+This system aims to incentivize positive community behaviour and improve
+municipal resource allocation efficiency.

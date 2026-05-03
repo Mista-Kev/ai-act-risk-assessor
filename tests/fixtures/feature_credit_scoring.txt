@@ -1,0 +1,27 @@
+Feature: Automated Credit Scoring Engine for Consumer Loans
+
+The lending division needs an AI-powered credit scoring engine that evaluates
+loan applications from individual consumers. The system will:
+
+- Ingest applicant financial data: income verification, existing debt levels,
+  payment history from credit bureaus, bank transaction patterns
+- Analyze alternative data sources including utility payment records and
+  rental payment history for thin-file applicants
+- Process personal identification data for KYC verification
+- Generate a proprietary credit score (300-850 scale) that determines
+  loan eligibility, interest rate tier, and maximum loan amount
+- Automatically approve applications scoring above 680, flag applications
+  between 580-680 for manual review, and automatically reject below 580
+
+The credit score directly determines whether a natural person receives a
+consumer loan and at what terms. The system processes sensitive financial
+and personal data of approximately 50,000 applicants per month.
+
+The AI system operates with human-on-the-loop oversight: a credit analyst
+reviews the flagged mid-range applications but the auto-approve and
+auto-reject decisions require no human intervention. The system is deployed
+as a cloud-hosted service accessible to our branch offices across Austria
+and Germany.
+
+This replaces our legacy rule-based scoring system and is expected to
+improve default prediction accuracy by 23%.

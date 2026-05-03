@@ -1,0 +1,27 @@
+Feature: Internal Data Dashboard with Trend Visualization
+
+The data analytics team wants to build an internal dashboard that displays
+aggregated business metrics with trend visualization. The system will:
+
+- Pull anonymized, aggregated sales data from the data warehouse on a
+  daily schedule
+- Compute moving averages, quarter-over-quarter growth rates, and
+  seasonal adjustment factors using standard statistical methods
+- Display interactive charts and tables in a web dashboard accessible
+  to the product and sales teams
+- Generate weekly summary bullet points highlighting notable trends
+  (e.g., "Q3 revenue is tracking 12% above Q2")
+- No individual customer or employee data is used — all metrics are
+  pre-aggregated at the product line or regional level
+
+The dashboard processes only anonymized, aggregated business data. It does
+not make any decisions, recommendations, or predictions about natural
+persons. No personal data is processed at any stage of the pipeline.
+
+The system is a read-only reporting tool with no decision-making capability.
+It is deployed on the internal network and accessible only to authenticated
+employees. The AI component is limited to trend summarization — the
+underlying statistical computations use deterministic algorithms.
+
+This is a standard business intelligence tool to replace our current
+spreadsheet-based reporting workflow.

@@ -1,0 +1,28 @@
+Feature: AI-Powered Employee Performance Evaluation System
+
+Our HR department is requesting an AI system that will automatically evaluate
+employee performance on a quarterly basis. The system will:
+
+- Analyze each employee's task completion rates, project delivery timelines,
+  and quality metrics from our internal project management tools
+- Monitor communication patterns including email response times, meeting
+  attendance, and collaboration scores from Microsoft Teams
+- Track keyboard activity and application usage during work hours to measure
+  productivity levels
+- Generate a performance score from 1-100 for each employee
+- Automatically flag underperforming employees for performance improvement plans
+- Recommend promotion candidates based on the aggregated performance data
+
+The system processes personal data of all 2,400 employees including their
+work output, communication metadata, and behavioral patterns. Managers
+will receive AI-generated performance reports but the system's scores directly
+feed into the annual bonus calculation formula.
+
+The AI makes autonomous decisions about flagging employees for performance
+improvement plans. While managers review the final promotion recommendations,
+the initial screening is fully automated. Deployment is within our corporate
+network only.
+
+This feature is critical for scaling our performance review process as we
+expand across DACH markets. We expect it to replace 60% of the manual review
+workload.

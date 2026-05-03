@@ -1,0 +1,28 @@
+Feature: AI Email Drafting Assistant for Board Communications
+
+We need an AI-powered email drafting tool that helps board secretaries
+compose professional correspondence. The system will:
+
+- Accept a brief description of the communication need (e.g., "invite
+  board members to Q3 review meeting" or "follow up on audit committee
+  action items")
+- Generate a complete, professionally formatted email draft in the
+  appropriate tone for board-level communications
+- Support both English and German language output
+- Allow the secretary to edit, refine, and approve the draft before sending
+- Maintain a library of approved email templates and tone guidelines
+- The system generates text content that is clearly presented as a draft
+  for human review
+
+The AI system processes no personal data beyond the secretary's input
+prompts. It interacts directly with the board secretary through a chat
+interface. All generated content is clearly labelled as AI-drafted and
+requires explicit human approval before sending.
+
+The system operates in a purely advisory capacity — the secretary makes
+all decisions about whether to use, modify, or discard the generated
+drafts. It does not access the email system directly; drafts are
+copy-pasted by the secretary.
+
+Deployment is within an internal governance platform, accessible only to
+authenticated board secretaries via the corporate network.

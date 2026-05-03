@@ -1,0 +1,763 @@
+{
+  "$defs": {
+    "AutonomyLevel": {
+      "description": "Degree of human oversight in AI-assisted decisions.\n\nExample::\n\n    >>> AutonomyLevel.ADVISORY_ONLY\n    <AutonomyLevel.ADVISORY_ONLY: 'advisory_only'>",
+      "enum": [
+        "full_autonomy",
+        "human_on_the_loop",
+        "human_in_the_loop",
+        "advisory_only"
+      ],
+      "title": "AutonomyLevel",
+      "type": "string"
+    },
+    "CheckResult": {
+      "description": "Result of a single verification check.\n\nExample::\n\n    >>> CheckResult(check_id=\"SPAN_EXISTS\", passed=True, detail=\"Span found in input text.\")",
+      "properties": {
+        "check_id": {
+          "description": "Unique check identifier.",
+          "title": "Check Id",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "detail": {
+          "description": "What was checked and the result.",
+          "title": "Detail",
+          "type": "string"
+        },
+        "severity": {
+          "default": "error",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "check_id",
+        "passed",
+        "detail"
+      ],
+      "title": "CheckResult",
+      "type": "object"
+    },
+    "Citation": {
+      "description": "A precise reference to an EU AI Act or ISO 42001 provision.\n\nExample::\n\n    >>> Citation(article_ref=\"Art. 5(1)(c)\", verbatim_text=\"AI system that evaluates...\")",
+      "properties": {
+        "article_ref": {
+          "description": "Article or Annex reference, e.g. 'Art. 5(1)(a)' or 'Annex III, 4(b)'.",
+          "title": "Article Ref",
+          "type": "string"
+        },
+        "verbatim_text": {
+          "description": "Verbatim text of the provision at the time of assessment.",
+          "title": "Verbatim Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "article_ref",
+        "verbatim_text"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "Classification": {
+      "description": "Complete classification result from the rule engine + ISO mapper.\n\nAssembled by the pipeline orchestrator. The drafter sees only this,\nnever the original input text.\n\nExample::\n\n    >>> Classification(final_tier=RiskTier.HIGH, triggered_rules=[...],\n    ...                all_rules_evaluated=[...], triggered_citations=[...],\n    ...                obligations=[...], iso_controls=[...], requires_human_review=True)",
+      "properties": {
+        "final_tier": {
+          "$ref": "#/$defs/RiskTier",
+          "description": "The highest risk tier triggered by any matched rule."
+        },
+        "triggered_rules": {
+          "description": "Rules that matched (matched=True), ordered by tier severity.",
+          "items": {
+            "$ref": "#/$defs/RuleEval"
+          },
+          "title": "Triggered Rules",
+          "type": "array"
+        },
+        "all_rules_evaluated": {
+          "description": "Every rule evaluated, including non-matches, for full audit trail.",
+          "items": {
+            "$ref": "#/$defs/RuleEval"
+          },
+          "title": "All Rules Evaluated",
+          "type": "array"
+        },
+        "triggered_citations": {
+          "description": "EU AI Act citations from triggered rules.",
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Triggered Citations",
+          "type": "array"
+        },
+        "obligations": {
+          "description": "Compliance obligations arising from this classification, e.g. 'Conformity assessment required (Art. 43)'.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Obligations",
+          "type": "array"
+        },
+        "iso_controls": {
+          "description": "ISO 42001 Annex A controls applicable to this feature.",
+          "items": {
+            "$ref": "#/$defs/ISOControl"
+          },
+          "title": "Iso Controls",
+          "type": "array"
+        },
+        "requires_human_review": {
+          "description": "Whether this classification requires mandatory human review.",
+          "title": "Requires Human Review",
+          "type": "boolean"
+        },
+        "human_review_reasons": {
+          "description": "Reasons why human review is required.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Human Review Reasons",
+          "type": "array"
+        },
+        "downgrade": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DowngradeInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Present only if Art. 6(3) exception was applied."
+        },
+        "feature_name": {
+          "default": "",
+          "description": "Feature name carried forward for the drafter's context.",
+          "title": "Feature Name",
+          "type": "string"
+        },
+        "feature_description": {
+          "default": "",
+          "description": "Feature description carried forward for the drafter's context.",
+          "title": "Feature Description",
+          "type": "string"
+        },
+        "domain": {
+          "default": "",
+          "description": "Domain carried forward for the drafter's context.",
+          "title": "Domain",
+          "type": "string"
+        }
+      },
+      "required": [
+        "final_tier",
+        "triggered_rules",
+        "all_rules_evaluated",
+        "triggered_citations",
+        "obligations",
+        "iso_controls",
+        "requires_human_review"
+      ],
+      "title": "Classification",
+      "type": "object"
+    },
+    "ConfidenceLevel": {
+      "description": "How the extractor arrived at this value.\n\nExample::\n\n    >>> ConfidenceLevel.EXPLICIT\n    <ConfidenceLevel.EXPLICIT: 'explicit'>",
+      "enum": [
+        "explicit",
+        "inferred",
+        "unclear"
+      ],
+      "title": "ConfidenceLevel",
+      "type": "string"
+    },
+    "DataSensitivity": {
+      "description": "Categories of data sensitivity relevant to AI Act classification.\n\nExample::\n\n    >>> DataSensitivity.BIOMETRIC\n    <DataSensitivity.BIOMETRIC: 'biometric'>",
+      "enum": [
+        "biometric",
+        "personal",
+        "sensitive_personal",
+        "anonymized",
+        "aggregated",
+        "public"
+      ],
+      "title": "DataSensitivity",
+      "type": "string"
+    },
+    "DeploymentScope": {
+      "description": "Whether the system operates in public or private contexts.\n\nExample::\n\n    >>> DeploymentScope.ONLINE_ONLY\n    <DeploymentScope.ONLINE_ONLY: 'online_only'>",
+      "enum": [
+        "public_space",
+        "private_space",
+        "mixed",
+        "online_only"
+      ],
+      "title": "DeploymentScope",
+      "type": "string"
+    },
+    "DowngradeInfo": {
+      "description": "Records when Article 6(3) exception downgrades HIGH to LIMITED.\n\nExample::\n\n    >>> DowngradeInfo(original_tier=RiskTier.HIGH, downgraded_tier=RiskTier.LIMITED,\n    ...               article_ref=\"Art. 6(3)\", conditions_met=[\"assistive_autonomy\", ...])",
+      "properties": {
+        "original_tier": {
+          "$ref": "#/$defs/RiskTier"
+        },
+        "downgraded_tier": {
+          "$ref": "#/$defs/RiskTier"
+        },
+        "article_ref": {
+          "default": "Art. 6(3)",
+          "description": "Article reference for the exception.",
+          "title": "Article Ref",
+          "type": "string"
+        },
+        "conditions_met": {
+          "description": "Which Article 6(3) conditions were satisfied.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Conditions Met",
+          "type": "array"
+        },
+        "rationale": {
+          "description": "Why the downgrade was applied.",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "requires_human_review": {
+          "default": true,
+          "description": "Art. 6(3) downgrades always escalate to human review.",
+          "title": "Requires Human Review",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "original_tier",
+        "downgraded_tier",
+        "conditions_met",
+        "rationale"
+      ],
+      "title": "DowngradeInfo",
+      "type": "object"
+    },
+    "ExtractedField_AutonomyLevel_": {
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/AutonomyLevel",
+          "description": "The extracted value."
+        },
+        "source_span": {
+          "default": "",
+          "description": "Verbatim substring from the input text that supports this value. Empty string if the value was inferred rather than directly quoted.",
+          "title": "Source Span",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel",
+          "default": "unclear",
+          "description": "How the extractor arrived at this value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "ExtractedField[AutonomyLevel]",
+      "type": "object"
+    },
+    "ExtractedField_DeploymentScope_": {
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/DeploymentScope",
+          "description": "The extracted value."
+        },
+        "source_span": {
+          "default": "",
+          "description": "Verbatim substring from the input text that supports this value. Empty string if the value was inferred rather than directly quoted.",
+          "title": "Source Span",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel",
+          "default": "unclear",
+          "description": "How the extractor arrived at this value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "ExtractedField[DeploymentScope]",
+      "type": "object"
+    },
+    "ExtractedField_bool_": {
+      "properties": {
+        "value": {
+          "description": "The extracted value.",
+          "title": "Value",
+          "type": "boolean"
+        },
+        "source_span": {
+          "default": "",
+          "description": "Verbatim substring from the input text that supports this value. Empty string if the value was inferred rather than directly quoted.",
+          "title": "Source Span",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel",
+          "default": "unclear",
+          "description": "How the extractor arrived at this value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "ExtractedField[bool]",
+      "type": "object"
+    },
+    "ExtractedField_list_DataSensitivity__": {
+      "properties": {
+        "value": {
+          "description": "The extracted value.",
+          "items": {
+            "$ref": "#/$defs/DataSensitivity"
+          },
+          "title": "Value",
+          "type": "array"
+        },
+        "source_span": {
+          "default": "",
+          "description": "Verbatim substring from the input text that supports this value. Empty string if the value was inferred rather than directly quoted.",
+          "title": "Source Span",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel",
+          "default": "unclear",
+          "description": "How the extractor arrived at this value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "ExtractedField[list[DataSensitivity]]",
+      "type": "object"
+    },
+    "ExtractedField_list_str__": {
+      "properties": {
+        "value": {
+          "description": "The extracted value.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Value",
+          "type": "array"
+        },
+        "source_span": {
+          "default": "",
+          "description": "Verbatim substring from the input text that supports this value. Empty string if the value was inferred rather than directly quoted.",
+          "title": "Source Span",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel",
+          "default": "unclear",
+          "description": "How the extractor arrived at this value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "ExtractedField[list[str]]",
+      "type": "object"
+    },
+    "ExtractedField_str_": {
+      "properties": {
+        "value": {
+          "description": "The extracted value.",
+          "title": "Value",
+          "type": "string"
+        },
+        "source_span": {
+          "default": "",
+          "description": "Verbatim substring from the input text that supports this value. Empty string if the value was inferred rather than directly quoted.",
+          "title": "Source Span",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel",
+          "default": "unclear",
+          "description": "How the extractor arrived at this value."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "ExtractedField[str]",
+      "type": "object"
+    },
+    "FeatureProfile": {
+      "description": "Complete structured extraction from a natural-language AI feature description.\n\nThis is the ONLY model the extractor LLM populates.\nThe rule engine and all downstream modules consume it read-only.\nThe extractor does NOT classify — it extracts.\n\nExample::\n\n    >>> profile = FeatureProfile(\n    ...     feature_name=ExtractedField[str](value=\"CV Screener\", source_span=\"CV Screener\", confidence=ConfidenceLevel.EXPLICIT),\n    ...     # ... remaining fields ...\n    ... )",
+      "properties": {
+        "feature_name": {
+          "$ref": "#/$defs/ExtractedField_str_",
+          "description": "Short name of the AI feature being assessed."
+        },
+        "description": {
+          "$ref": "#/$defs/ExtractedField_str_",
+          "description": "One-paragraph summary of what the AI feature does."
+        },
+        "domain": {
+          "$ref": "#/$defs/ExtractedField_str_",
+          "description": "Application domain, e.g. 'healthcare', 'finance', 'education', 'law_enforcement', 'hr_recruitment', 'social_media'."
+        },
+        "affected_subjects": {
+          "$ref": "#/$defs/ExtractedField_list_str__",
+          "description": "Categories of natural persons affected by the AI system's outputs, e.g. ['job_applicants', 'patients', 'students', 'citizens']."
+        },
+        "operators": {
+          "$ref": "#/$defs/ExtractedField_list_str__",
+          "description": "Entities deploying or operating the AI system, e.g. ['employer', 'hospital', 'government_agency']."
+        },
+        "autonomy_level": {
+          "$ref": "#/$defs/ExtractedField_AutonomyLevel_",
+          "description": "Degree of human oversight in the AI-assisted decision."
+        },
+        "decision_impact": {
+          "$ref": "#/$defs/ExtractedField_str_",
+          "description": "What decision or outcome the AI influences and its potential consequence on affected subjects."
+        },
+        "data_types": {
+          "$ref": "#/$defs/ExtractedField_list_DataSensitivity__",
+          "description": "Categories of data the AI system processes."
+        },
+        "uses_biometric_data": {
+          "$ref": "#/$defs/ExtractedField_bool_",
+          "description": "Whether the system processes biometric data (face, voice, gait, etc.)."
+        },
+        "uses_personal_data": {
+          "$ref": "#/$defs/ExtractedField_bool_",
+          "description": "Whether the system processes personal data under GDPR."
+        },
+        "deployment_scope": {
+          "$ref": "#/$defs/ExtractedField_DeploymentScope_",
+          "description": "Whether the system operates in public, private, or mixed spaces."
+        },
+        "sector": {
+          "$ref": "#/$defs/ExtractedField_str_",
+          "description": "Sector of deployment, e.g. 'public_sector', 'private_sector', 'healthcare', 'finance', 'education', 'law_enforcement'."
+        },
+        "prohibited_signals": {
+          "$ref": "#/$defs/ExtractedField_list_str__",
+          "description": "Signal tokens from ARTICLE_5_VOCAB that apply to this feature. Empty list if none apply. Valid tokens: biometric_categorization_politics, biometric_categorization_race, biometric_categorization_religion, biometric_categorization_sex_life, biometric_categorization_union, deceptive_technique, emotion_recognition_education, emotion_recognition_workplace, exploit_age_vulnerability, exploit_disability_vulnerability, exploit_socioeconomic_vulnerability, manipulative_technique, predictive_policing_profiling, realtime_remote_biometric_id, social_scoring, subliminal_technique, untargeted_facial_scraping"
+        },
+        "high_risk_signals": {
+          "$ref": "#/$defs/ExtractedField_list_str__",
+          "description": "Signal tokens from ANNEX_III_VOCAB that apply to this feature. Empty list if none apply. Valid tokens: biometric_categorization, creditworthiness_assessment, critical_infrastructure_safety, democratic_process_influence, education_access_admission, education_cheating_detection, education_level_assessment, education_outcome_evaluation, emergency_dispatch, emotion_recognition, employment_decisions, employment_recruitment, insurance_risk_assessment, justice_research_application, law_enforcement_evidence_reliability, law_enforcement_polygraph, law_enforcement_profiling, law_enforcement_risk_offending, law_enforcement_risk_victim, migration_application_evaluation, migration_person_detection, migration_polygraph, migration_risk_assessment, public_benefits_eligibility, remote_biometric_identification"
+        },
+        "generates_content": {
+          "$ref": "#/$defs/ExtractedField_bool_",
+          "description": "Whether the system generates text, images, audio, video, or code."
+        },
+        "interacts_with_humans": {
+          "$ref": "#/$defs/ExtractedField_bool_",
+          "description": "Whether the system interacts directly with natural persons (chatbot, voice assistant, etc.)."
+        },
+        "generates_deepfakes": {
+          "$ref": "#/$defs/ExtractedField_bool_",
+          "description": "Whether the system generates or manipulates content that could be mistaken for authentic (deepfakes)."
+        }
+      },
+      "required": [
+        "feature_name",
+        "description",
+        "domain",
+        "affected_subjects",
+        "operators",
+        "autonomy_level",
+        "decision_impact",
+        "data_types",
+        "uses_biometric_data",
+        "uses_personal_data",
+        "deployment_scope",
+        "sector",
+        "prohibited_signals",
+        "high_risk_signals",
+        "generates_content",
+        "interacts_with_humans",
+        "generates_deepfakes"
+      ],
+      "title": "FeatureProfile",
+      "type": "object"
+    },
+    "ISOControl": {
+      "description": "A single ISO/IEC 42001:2023 Annex A control mapped to a classification.\n\nExample::\n\n    >>> ISOControl(control_id=\"A.5.2\", title=\"AI Risk Assessment\",\n    ...            description=\"...\", applicability=\"High-risk system per Art. 9\")",
+      "properties": {
+        "control_id": {
+          "description": "ISO 42001 control ID, e.g. 'A.5.2'.",
+          "title": "Control Id",
+          "type": "string"
+        },
+        "title": {
+          "description": "Control title.",
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "description": "What the control requires.",
+          "title": "Description",
+          "type": "string"
+        },
+        "applicability": {
+          "description": "Why this control applies to the assessed feature.",
+          "title": "Applicability",
+          "type": "string"
+        }
+      },
+      "required": [
+        "control_id",
+        "title",
+        "description",
+        "applicability"
+      ],
+      "title": "ISOControl",
+      "type": "object"
+    },
+    "Provenance": {
+      "description": "Immutable provenance metadata for reproducibility.\n\nExample::\n\n    >>> Provenance(rule_engine_version=\"0.1.0\", schema_version=\"0.1.0\",\n    ...            extractor_model_id=\"nemotron-3-nano:4b\", drafter_model_id=\"gemma4:e4b\",\n    ...            extractor_prompt_hash=\"abc123...\", drafter_prompt_hash=\"def456...\")",
+      "properties": {
+        "rule_engine_version": {
+          "description": "Semantic version of the rule engine.",
+          "title": "Rule Engine Version",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Semantic version of the schema.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "git_sha": {
+          "default": "",
+          "description": "Git commit SHA at assessment time. Empty if not in a git repo.",
+          "title": "Git Sha",
+          "type": "string"
+        },
+        "extractor_model_id": {
+          "description": "Ollama model tag used for extraction.",
+          "title": "Extractor Model Id",
+          "type": "string"
+        },
+        "drafter_model_id": {
+          "description": "Ollama model tag used for drafting.",
+          "title": "Drafter Model Id",
+          "type": "string"
+        },
+        "extractor_prompt_hash": {
+          "description": "SHA-256 of the extractor prompt template.",
+          "title": "Extractor Prompt Hash",
+          "type": "string"
+        },
+        "drafter_prompt_hash": {
+          "description": "SHA-256 of the drafter prompt template.",
+          "title": "Drafter Prompt Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_engine_version",
+        "schema_version",
+        "extractor_model_id",
+        "drafter_model_id",
+        "extractor_prompt_hash",
+        "drafter_prompt_hash"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RiskTier": {
+      "description": "EU AI Act risk classification tiers, ordered by severity.\n\nExample::\n\n    >>> RiskTier.HIGH\n    <RiskTier.HIGH: 'high'>",
+      "enum": [
+        "prohibited",
+        "high",
+        "limited",
+        "minimal"
+      ],
+      "title": "RiskTier",
+      "type": "string"
+    },
+    "RuleEval": {
+      "description": "Result of evaluating one deterministic rule against a FeatureProfile.\n\nProduced only by the rule engine, never by an LLM. Every rule emits one\nof these whether it matched or not, so the audit trail records the entire\ndecision path.\n\nExample::\n\n    >>> RuleEval(rule_id=\"ART5_C_SOCIAL_SCORING\", matched=True, tier=RiskTier.PROHIBITED,\n    ...          article_ref=\"Art. 5(1)(c)\", verbatim_provision=\"...\", triggered_signals=[\"social_scoring\"])",
+      "properties": {
+        "rule_id": {
+          "description": "Unique rule identifier, e.g. 'ART5_A_SUBLIMINAL'.",
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "matched": {
+          "description": "Whether this rule's conditions were satisfied.",
+          "title": "Matched",
+          "type": "boolean"
+        },
+        "tier": {
+          "$ref": "#/$defs/RiskTier",
+          "description": "The risk tier this rule asserts when matched."
+        },
+        "article_ref": {
+          "description": "EU AI Act article or annex reference.",
+          "title": "Article Ref",
+          "type": "string"
+        },
+        "verbatim_provision": {
+          "description": "Verbatim provision text at assessment time.",
+          "title": "Verbatim Provision",
+          "type": "string"
+        },
+        "triggered_signals": {
+          "description": "Signal tokens from the feature profile that caused this match.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Triggered Signals",
+          "type": "array"
+        },
+        "rationale": {
+          "default": "",
+          "description": "Brief explanation of why this rule matched or did not.",
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "matched",
+        "tier",
+        "article_ref",
+        "verbatim_provision"
+      ],
+      "title": "RuleEval",
+      "type": "object"
+    },
+    "VerificationResult": {
+      "description": "Aggregated verification result for an extraction or drafted memo.\n\nExample::\n\n    >>> result = VerificationResult(checks=[...], passed=True, escalate=False)",
+      "properties": {
+        "checks": {
+          "description": "All individual check results.",
+          "items": {
+            "$ref": "#/$defs/CheckResult"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "passed": {
+          "description": "True only if all error-severity checks passed.",
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "escalate": {
+          "default": false,
+          "description": "True if issues require human intervention.",
+          "title": "Escalate",
+          "type": "boolean"
+        },
+        "escalation_reasons": {
+          "description": "Reasons for escalation.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Escalation Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks",
+        "passed"
+      ],
+      "title": "VerificationResult",
+      "type": "object"
+    }
+  },
+  "description": "Immutable, hash-chained audit record for a single AI Act risk assessment. Validated before writing. Canonical JSON serialization used for hashing.",
+  "properties": {
+    "assessment_id": {
+      "description": "UUID identifying this assessment.",
+      "title": "Assessment Id",
+      "type": "string"
+    },
+    "timestamp_utc": {
+      "description": "UTC timestamp when the assessment completed.",
+      "format": "date-time",
+      "title": "Timestamp Utc",
+      "type": "string"
+    },
+    "input_text_sha256": {
+      "description": "SHA-256 hash of the original input text.",
+      "title": "Input Text Sha256",
+      "type": "string"
+    },
+    "input_text_length": {
+      "description": "Character length of the original input text.",
+      "title": "Input Text Length",
+      "type": "integer"
+    },
+    "feature_profile": {
+      "$ref": "#/$defs/FeatureProfile",
+      "description": "The extracted feature profile."
+    },
+    "extraction_verification": {
+      "$ref": "#/$defs/VerificationResult",
+      "description": "Verification of the extraction step."
+    },
+    "classification": {
+      "$ref": "#/$defs/Classification",
+      "description": "The complete classification result."
+    },
+    "memo": {
+      "description": "LLM-drafted assessment memo in markdown.",
+      "title": "Memo",
+      "type": "string"
+    },
+    "memo_verification": {
+      "$ref": "#/$defs/VerificationResult",
+      "description": "Verification of the drafted memo (citation checks)."
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance",
+      "description": "Reproducibility metadata."
+    },
+    "previous_record_sha256": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "SHA-256 of the previous AuditRecord's canonical JSON. None for the first record in the chain.",
+      "title": "Previous Record Sha256"
+    }
+  },
+  "required": [
+    "assessment_id",
+    "timestamp_utc",
+    "input_text_sha256",
+    "input_text_length",
+    "feature_profile",
+    "extraction_verification",
+    "classification",
+    "memo",
+    "memo_verification",
+    "provenance"
+  ],
+  "title": "AI Act Risk Assessor — Audit Record",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
