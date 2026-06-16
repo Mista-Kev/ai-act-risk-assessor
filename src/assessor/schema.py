@@ -502,18 +502,19 @@ class FeatureProfile(BaseModel):
     )
 
     # --- AI Act signals (critical for rule engine) ---
+    # The valid token lists are enumerated in the extractor prompt template,
+    # not repeated here — duplicating them in the JSON schema inflates the
+    # prompt the model must read on every call.
     prohibited_signals: ExtractedField[list[str]] = Field(
         description=(
-            "Signal tokens from ARTICLE_5_VOCAB that apply to this feature. "
-            "Empty list if none apply. Valid tokens: "
-            + ", ".join(sorted(ARTICLE_5_VOCAB.keys()))
+            "Signal tokens from the Article 5 vocabulary that apply to this "
+            "feature. Use only tokens listed in the prompt. Empty list if none apply."
         ),
     )
     high_risk_signals: ExtractedField[list[str]] = Field(
         description=(
-            "Signal tokens from ANNEX_III_VOCAB that apply to this feature. "
-            "Empty list if none apply. Valid tokens: "
-            + ", ".join(sorted(ANNEX_III_VOCAB.keys()))
+            "Signal tokens from the Annex III vocabulary that apply to this "
+            "feature. Use only tokens listed in the prompt. Empty list if none apply."
         ),
     )
 

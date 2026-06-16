@@ -128,6 +128,10 @@ def extract(
         temperature=temperature,
         seed=seed,
         max_retries=max_retries,
+        # Disable the model's chain-of-thought. Extraction is a mechanical
+        # schema-fill; the reasoning trace roughly triples latency for no gain
+        # and the deterministic verifier audits the output regardless.
+        reasoning_effort="none",
     )
 
     return profile

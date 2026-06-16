@@ -114,6 +114,9 @@ def draft(
         ],
         temperature=temperature,
         seed=seed,
+        # Disable chain-of-thought: the memo is generated from already-decided
+        # classification data, so the reasoning trace only adds latency.
+        reasoning_effort="none",
     )
 
     content = response.choices[0].message.content
