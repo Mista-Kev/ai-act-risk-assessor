@@ -22,7 +22,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Generic, Literal, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
 
 # ---------------------------------------------------------------------------
 # Enums
@@ -403,6 +403,19 @@ class ExtractedField(BaseModel, Generic[T]):
         default=ConfidenceLevel.UNCLEAR,
         description="How the extractor arrived at this value.",
     )
+
+    @field_validator("source_span", mode="before")
+    @classmethod
+    def _coerce_null_span(cls, v: object) -> object:
+        """Coerce a null source_span to an empty string.
+
+        LLMs routinely emit ``"source_span": null`` for inferred fields rather
+        than the empty string the schema expects. Null means exactly what ""
+        means here — "no verbatim span" — so we normalize it instead of
+        failing extraction. The verifier still enforces that an empty span
+        implies ``confidence=unclear``.
+        """
+        return "" if v is None else v
 
 
 # ---------------------------------------------------------------------------
