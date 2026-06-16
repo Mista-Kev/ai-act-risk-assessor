@@ -3,6 +3,8 @@ name = "ai-act-assessor"
 version = "0.1.0"
 description = "AI Act risk assessor — neuro-symbolic classification with deterministic audit trail"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "Kevin van Heck" }]
 dependencies = [
     "pydantic>=2.7,<3",
     "instructor>=1.5,<2",
@@ -20,6 +22,9 @@ dev = [
     "pytest-timeout>=2.2,<3",
     "mypy>=1.9,<2",
     "ruff>=0.4,<1",
+]
+ui = [
+    "streamlit>=1.34,<2",
 ]
 
 [project.scripts]

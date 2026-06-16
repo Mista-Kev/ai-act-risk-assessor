@@ -36,7 +36,7 @@ uv venv && uv pip install -e ".[dev]"
 # Pull the required Ollama model (one model serves both extraction and drafting)
 ollama pull gemma4:e4b
 
-# Run an assessment
+# Run an assessment (CLI)
 assessor assess --input tests/fixtures/feature_employee_evaluation.txt
 
 # Replay an audit record
@@ -48,6 +48,23 @@ assessor list
 # Run without LLM (deterministic pipeline only)
 assessor assess --input tests/fixtures/feature_employee_evaluation.txt --skip-llm
 ```
+
+## Web UI (Streamlit)
+
+A browser UI over the same pipeline — it runs no logic of its own; every
+classification still flows through the deterministic rule engine and verifiers.
+It makes the decision path visible: the full rule cascade (matched *and*
+non-matched), extracted spans with confidence, ISO 42001 controls, the drafted
+memo, and the hash-chained audit record. A second tab browses past audit records
+and replays any of them.
+
+```bash
+uv pip install -e ".[ui]"
+streamlit run streamlit_app.py
+```
+
+Toggle **Skip LLM** in the sidebar to exercise the deterministic path with no
+Ollama instance running.
 
 ## Design Decision: Instructor over Outlines
 
@@ -146,6 +163,7 @@ src/assessor/
   prompts/
     extractor.jinja2 # Extraction prompt template (versioned, hashed)
     drafter.jinja2   # Drafting prompt template (versioned, hashed)
+streamlit_app.py     # Web UI over the same pipeline (optional [ui] extra)
 schemas/
   audit_record.schema.json  # Generated JSON Schema for audit records
 tests/
