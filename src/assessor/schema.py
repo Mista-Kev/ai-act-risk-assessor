@@ -768,7 +768,7 @@ class Provenance(BaseModel):
     Example::
 
         >>> Provenance(rule_engine_version="0.1.0", schema_version="0.1.0",
-        ...            extractor_model_id="nemotron-3-nano:4b", drafter_model_id="gemma4:e4b",
+        ...            extractor_model_id="gemma4:e4b", drafter_model_id="gemma4:e4b",
         ...            extractor_prompt_hash="abc123...", drafter_prompt_hash="def456...")
     """
 

@@ -31,7 +31,7 @@ from assessor.schema import (
 # Configuration
 # ---------------------------------------------------------------------------
 
-DEFAULT_EXTRACTOR_MODEL = "nemotron-3-nano:4b"
+DEFAULT_EXTRACTOR_MODEL = "gemma4:e4b"
 OLLAMA_BASE_URL = "http://localhost:11434/v1"
 
 _PROMPT_DIR = Path(__file__).parent / "prompts"

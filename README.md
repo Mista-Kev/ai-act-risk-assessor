@@ -12,7 +12,7 @@ immutable, replayable, hash-chained audit record.
 ```mermaid
 flowchart TD
     Input[Input: free text + optional form] --> Extractor
-    Extractor[Extractor<br/>Nemotron 3 Nano 4B<br/>Instructor schema-constrained<br/>spans + confidence] --> Verifier
+    Extractor[Extractor<br/>Gemma 4 E4B<br/>Instructor schema-constrained<br/>spans + confidence] --> Verifier
     Verifier[Verifier<br/>span ⊂ input · coverage · vocab] --> Rules
     Rules[Rule Engine<br/>Art. 5 → PROHIBITED short-circuit<br/>Annex III + Art. 6 → HIGH<br/>Art. 6 3 exception → LIMITED<br/>Art. 50 GenAI → LIMITED<br/>default → MINIMAL] --> ISO
     ISO[ISO 42001 Mapper<br/>tier + signals → Annex A controls] --> Drafter
@@ -33,8 +33,7 @@ Yellow = probabilistic (LLM). Blue = deterministic. **LLMs never decide** — cl
 # Install (requires Python 3.11+, uv recommended)
 uv venv && uv pip install -e ".[dev]"
 
-# Pull required Ollama models
-ollama pull nemotron-3-nano:4b
+# Pull the required Ollama model (one model serves both extraction and drafting)
 ollama pull gemma4:e4b
 
 # Run an assessment
